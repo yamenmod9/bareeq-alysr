@@ -27,17 +27,6 @@ from fastapi.middleware.wsgi import WSGIMiddleware
 # Initialize database
 init_database(flask_app)
 
-# For PythonAnywhere, we'll use Flask as the main app and mount FastAPI routes
-# This is because PythonAnywhere uses WSGI, not ASGI
-
-# Option 1: Use Flask directly (simpler, but loses FastAPI benefits)
-# application = flask_app
-
-# Option 2: Use a2wsgi to convert ASGI to WSGI (recommended)
-try:
-    from a2wsgi import ASGIMiddleware
-    application = ASGIMiddleware(fastapi_app)
-except ImportError:
-    # Fallback to Flask if a2wsgi is not installed
-    print("Warning: a2wsgi not found, using Flask app directly")
-    application = flask_app
+# For PythonAnywhere (WSGI server), use Flask directly
+# Flask handles all API routes via blueprints registered in flask_app.py
+application = flask_app
