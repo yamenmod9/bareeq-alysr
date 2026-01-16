@@ -33,8 +33,8 @@ export default function MerchantDashboard() {
   });
 
   const stats = statsData?.data;
-  const transactions = transactionsData?.data.items || [];
-  const settlements = settlementsData?.data.items || [];
+  const transactions = (transactionsData?.data as any)?.items || transactionsData?.data || [];
+  const settlements = (settlementsData?.data as any)?.items || settlementsData?.data || [];
 
   const statusColors = {
     pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
@@ -171,20 +171,20 @@ export default function MerchantDashboard() {
                 <tbody>
                   {transactions.map((transaction: Transaction) => (
                     <tr
-                      key={transaction.id}
+                      key={transaction.id || transaction.transaction_id}
                       className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
                     >
                       <td className="py-3 px-4">
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {transaction.customer.full_name}
+                          {transaction.customer?.full_name || transaction.customer?.user?.full_name || '-'}
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {transaction.customer.email}
+                          {transaction.customer?.email || transaction.customer?.user?.email || '-'}
                         </p>
                       </td>
                       <td className="py-3 px-4">
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {formatCurrency(transaction.amount)}
+                          {formatCurrency(transaction.amount || transaction.total_amount)}
                         </p>
                       </td>
                       <td className="py-3 px-4">

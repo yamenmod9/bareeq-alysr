@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Mail, Lock, AlertCircle, LogIn } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { Button, Input, Card, CardContent } from '../components/ui';
@@ -8,8 +8,6 @@ import type { LoginCredentials } from '../types/api';
 
 export default function Login() {
   const { t } = useTranslation(['auth', 'common', 'errors']);
-  const navigate = useNavigate();
-  const location = useLocation();
   const { login } = useAuth();
 
   const [formData, setFormData] = useState<LoginCredentials>({

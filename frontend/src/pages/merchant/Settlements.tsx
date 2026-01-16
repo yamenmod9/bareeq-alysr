@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Wallet, Calendar, CheckCircle, Clock, 
   XCircle, Filter,
-  Building, CreditCard, AlertCircle
+  Building, AlertCircle
 } from 'lucide-react';
 import { merchantService } from '../../services/merchant.service';
 import { Button, Card, CardContent, Input } from '../../components/ui';
@@ -49,7 +49,7 @@ export default function Settlements() {
   });
 
   const settlements: Settlement[] = settlementsData?.data || [];
-  const stats = statsData?.data || { balance: 0, pending_settlements: 0, completed_settlements: 0 };
+  const stats = statsData?.data || { balance: 0, pending_settlements: 0, completed_settlements: 0, total_settled: 0, this_month_settled: 0 };
 
   const requestSettlementMutation = useMutation({
     mutationFn: (data: { amount: number; bank_name: string; bank_account: string; iban: string }) => 
@@ -229,7 +229,7 @@ export default function Settlements() {
             .map(([monthKey, monthSettlements]: [string, Settlement[]]) => {
               const [year, month] = monthKey.split('-');
               const monthName = new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' });
-              const monthTotal = monthSettlements.reduce((sum: number, s: Settlement) => sum + s.amount, 0);
+              const monthTotal = monthSettlements.reduce((sum: number, s: Settlement) => sum + (s.amount || s.net_amount || 0), 0);
 
               return (
                 <div key={monthKey}>

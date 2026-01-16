@@ -6,7 +6,7 @@ import { customerService } from '../../services/customer.service';
 import { Button, Card, CardContent } from '../../components/ui';
 import { useCurrency } from '../../hooks/useCurrency';
 import { formatDate } from '../../utils/date';
-import type { RepaymentPlan, RepaymentSchedule } from '../../types/models';
+// Types are inferred from API responses
 
 export default function Repayments() {
   const { t } = useTranslation(['customer', 'common']);

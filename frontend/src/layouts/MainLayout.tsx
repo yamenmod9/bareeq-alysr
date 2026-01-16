@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Menu,
@@ -29,7 +29,7 @@ import { Button } from '../components/ui';
 export default function MainLayout() {
   const { t } = useTranslation(['common', 'customer', 'merchant', 'admin']);
   const location = useLocation();
-  const navigate = useNavigate();
+  // useNavigate is available via React Router if needed
   const { user } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
   const { language, toggleLanguage } = useLocaleStore();

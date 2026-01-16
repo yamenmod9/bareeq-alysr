@@ -6,6 +6,7 @@ export interface User {
   email: string;
   name: string;
   phone?: string;
+  phone_number?: string;
   national_id?: string;
   is_verified: boolean;
   role: UserRole;
@@ -14,7 +15,7 @@ export interface User {
   created_at: string;
   updated_at: string;
   last_login?: string;
-  full_name?: string;
+  full_name?: string | null;
   two_factor_enabled?: boolean;
   nafath_verified?: boolean;
 }
@@ -31,6 +32,9 @@ export interface Customer {
   created_at: string;
   updated_at: string;
   user?: User;
+  full_name?: string;
+  email?: string;
+  phone?: string;
 }
 
 export interface CustomerLimitHistory {
@@ -50,9 +54,11 @@ export interface Merchant {
   id?: number;
   user_id: number;
   shop_name: string;
+  business_name?: string;
   shop_description?: string;
   commercial_registration_no?: string;
   commercial_registration?: string;
+  cr_number?: string;
   tax_number?: string;
   vat_number?: string;
   bank_name?: string;
@@ -61,8 +67,10 @@ export interface Merchant {
   bank_account?: string;
   address?: string;
   city?: string;
+  category?: string;
   website_url?: string;
   logo_url?: string;
+  phone?: string;
   status: 'active' | 'suspended' | 'pending_approval';
   is_verified: boolean;
   total_transactions: number;
@@ -111,12 +119,16 @@ export interface PurchaseRequest {
 }
 
 export interface Transaction {
+  id?: number;
   transaction_id: number;
+  transaction_number?: string;
   customer_id: number;
   merchant_id: number;
   request_id: number;
   total_amount: number;
+  amount?: number;
   paid_amount: number;
+  remaining_amount?: number;
   remaining_balance: number;
   commission_rate: number;
   commission_amount: number;
@@ -233,8 +245,10 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  name: string;
-  phone: string;
+  full_name: string;
+  phone_number?: string;
+  name?: string;
+  phone?: string;
   national_id?: string;
   role: 'customer' | 'merchant';
   shop_name?: string;
@@ -295,10 +309,19 @@ export interface CreateBranchInput {
 export interface MerchantStats {
   total_transactions: number;
   total_volume: number;
-  pending_requests: number;
-  completed_settlements: number;
-  average_transaction_value: number;
-  pending_settlements_amount: number;
+  total_sales: number;
+  active_transactions: number;
+  completed_transactions: number;
+  total_income: number;
+  total_settled: number;
+  this_month_settled: number;
+  balance: number;
+  total_commission_paid: number;
+  pending_requests?: number;
+  completed_settlements?: number;
+  average_transaction_value?: number;
+  pending_settlements?: number;
+  pending_settlements_amount?: number;
 }
 
 export interface CustomerProfile extends Customer {

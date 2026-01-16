@@ -198,7 +198,7 @@ export default function Settings() {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {merchant?.business_name || merchant?.user?.full_name || t('merchant:settings.merchant')}
+                    {merchant?.business_name || merchant?.shop_name || merchant?.user?.full_name || t('merchant:settings.merchant')}
                   </h3>
                   <p className="text-gray-500 dark:text-gray-400">
                     {t('merchant:settings.merchant_id')}: {merchant?.merchant_id}
@@ -220,7 +220,7 @@ export default function Settings() {
                     <Phone className="w-4 h-4" />
                     <span className="text-sm">{t('common:phone')}</span>
                   </div>
-                  <p className="font-medium text-gray-900 dark:text-white">{merchant?.phone || merchant?.user?.phone_number || '-'}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{merchant?.phone || merchant?.user?.phone || merchant?.user?.phone_number || '-'}</p>
                 </div>
 
                 <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
@@ -228,7 +228,7 @@ export default function Settings() {
                     <CreditCard className="w-4 h-4" />
                     <span className="text-sm">{t('merchant:settings.cr_number')}</span>
                   </div>
-                  <p className="font-medium text-gray-900 dark:text-white">{merchant?.cr_number || '-'}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{merchant?.cr_number || merchant?.commercial_registration_no || '-'}</p>
                 </div>
 
                 <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">

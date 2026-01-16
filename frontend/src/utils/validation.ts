@@ -104,9 +104,9 @@ export const updateLimitSchema = z.object({
 // Select repayment plan validation
 export const selectRepaymentPlanSchema = z.object({
   transaction_id: z.number().positive('Transaction ID is required'),
-  plan_type: z.enum([1, 3, 6, 12, 18, 24] as const, {
+  plan_type: z.enum(['1', '3', '6', '12', '18', '24'] as const, {
     errorMap: () => ({ message: 'Invalid plan type' }),
-  }),
+  }).transform(val => parseInt(val, 10)),
 });
 
 // Make payment validation

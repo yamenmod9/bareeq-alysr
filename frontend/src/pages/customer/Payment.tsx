@@ -205,7 +205,7 @@ export default function Payment() {
                 <Button
                   onClick={() => handlePayment(transaction)}
                   className="w-full"
-                  variant={transaction.status === 'overdue' ? 'default' : 'outline'}
+                  variant={transaction.status === 'overdue' ? 'danger' : 'outline'}
                 >
                   <CreditCard className="w-4 h-4 mr-2" />
                   {t('customer:payment.make_payment')}

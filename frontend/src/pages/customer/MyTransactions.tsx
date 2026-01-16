@@ -12,7 +12,7 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import { customerService } from '../../services/customer.service';
-import { Card, CardContent, Button } from '../../components/ui';
+import { Card, CardContent } from '../../components/ui';
 import { useCurrency } from '../../hooks/useCurrency';
 import { formatDate } from '../../utils/date';
 

@@ -5,6 +5,7 @@ fastapi==0.109.0
 flask==3.0.0
 uvicorn[standard]==0.27.0
 gunicorn==21.2.0
+a2wsgi==1.10.0  # ASGI to WSGI adapter for PythonAnywhere
 
 # Database
 flask-sqlalchemy==3.1.1

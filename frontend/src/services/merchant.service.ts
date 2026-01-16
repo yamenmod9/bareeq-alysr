@@ -9,7 +9,7 @@ import {
   Customer,
   SendPurchaseRequestInput,
   RequestSettlementInput,
-  LookupCustomerInput,
+  // LookupCustomerInput,
   CreateBranchInput,
 } from '@/types/models';
 import { TransactionFilters, SettlementFilters } from '@/types/api';

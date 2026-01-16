@@ -84,9 +84,9 @@ export default function Settings() {
       const userData = response?.data;
       if (userData) {
         updateUser({
-          full_name: userData.full_name,
+          full_name: userData.full_name ?? undefined,
           email: userData.email,
-          phone: userData.phone,
+          phone: userData.phone ?? undefined,
         });
         // Update local form state as well
         setProfileForm({

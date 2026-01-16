@@ -158,7 +158,7 @@ export default function SendRequest() {
                     </div>
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">
-                        {customerData.full_name || t('merchant:send_request.customer')}
+                        {customerData.full_name || customerData.user?.full_name || t('merchant:send_request.customer')}
                       </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400 font-mono">
                         {customerData.customer_code}
