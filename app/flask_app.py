@@ -2,11 +2,16 @@
 Flask Application
 Handles Flask-SQLAlchemy initialization and admin routes
 """
-from flask import Flask, jsonify
+import os
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 
 from app.config import get_config
 from app.database import db, migrate, create_all_tables, init_db
+
+# Get the project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FRONTEND_DIST = os.path.join(PROJECT_ROOT, 'frontend', 'dist')
 
 
 def create_flask_app() -> Flask:
@@ -14,7 +19,7 @@ def create_flask_app() -> Flask:
     Create and configure the Flask application
     Used for Flask-SQLAlchemy and admin functionality
     """
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder=FRONTEND_DIST, static_url_path='')
     
     # Load configuration
     config = get_config()
@@ -34,14 +39,34 @@ def create_flask_app() -> Flask:
             Settlement, RepaymentPlan, RepaymentSchedule
         )
     
-    # Register Flask blueprints (admin routes)
+    # Register API blueprint
+    from app.flask_routes import api
+    app.register_blueprint(api)
+    
+    # Register Flask routes (frontend serving)
     register_flask_routes(app)
     
     return app
 
 
 def register_flask_routes(app: Flask):
-    """Register Flask-specific routes (admin, health, etc.)"""
+    """Register Flask-specific routes (frontend, admin, etc.)"""
+    
+    @app.route('/')
+    def serve_frontend():
+        """Serve the React frontend"""
+        return send_from_directory(app.static_folder, 'index.html')
+    
+    @app.route('/<path:path>')
+    def serve_static(path):
+        """Serve static files or fallback to index.html for SPA routing"""
+        # Don't catch API routes
+        if path.startswith('auth/') or path.startswith('customers/') or path.startswith('merchants/') or path.startswith('admin/') or path == 'health':
+            return app.send_static_file('index.html')  # This will 404 to API
+        if os.path.exists(os.path.join(app.static_folder, path)):
+            return send_from_directory(app.static_folder, path)
+            return send_from_directory(app.static_folder, path)
+        return send_from_directory(app.static_folder, 'index.html')
     
     @app.route('/health')
     def flask_health():
