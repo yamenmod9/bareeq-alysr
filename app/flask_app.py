@@ -52,27 +52,31 @@ def create_flask_app() -> Flask:
 def register_flask_routes(app: Flask):
     """Register Flask-specific routes (frontend, admin, etc.)"""
     
-    @app.route('/')
-    def serve_frontend():
-        """Serve the React frontend"""
-        return send_from_directory(app.static_folder, 'index.html')
-    
-    @app.route('/<path:path>')
-    def serve_static(path):
-        """Serve static files or fallback to index.html for SPA routing"""
-        # Don't catch API routes
-        if path.startswith('auth/') or path.startswith('customers/') or path.startswith('merchants/') or path.startswith('admin/') or path == 'health':
-            return app.send_static_file('index.html')  # This will 404 to API
-        if os.path.exists(os.path.join(app.static_folder, path)):
-            return send_from_directory(app.static_folder, path)
-            return send_from_directory(app.static_folder, path)
-        return send_from_directory(app.static_folder, 'index.html')
-    
     @app.route('/health')
     def flask_health():
         """Flask health check endpoint"""
         return jsonify({
             "status": "healthy",
+            "framework": "flask",
+            "database": "connected"
+        })
+    
+    # Catch-all route for frontend (must be last)
+    @app.route('/', defaults={'path': ''})
+    @app.route('/<path:path>')
+    def serve_frontend(path):
+        """Serve the React frontend or static files"""
+        # API routes are handled by the blueprint, don't catch them here
+        if path.startswith(('auth/', 'customers/', 'merchants/', 'admin/')):
+            # Let the API blueprint handle these
+            return jsonify({"error": "Not Found"}), 404
+        
+        # Serve static file if it exists
+        if path and os.path.exists(os.path.join(app.static_folder, path)):
+            return send_from_directory(app.static_folder, path)
+        
+        # Otherwise serve index.html for SPA routing
+        return send_from_directory(app.static_folder, 'index.html')
             "framework": "flask",
             "database": "connected"
         })
