@@ -53,7 +53,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # Build outputs
-frontend/dist/
+# frontend/dist/  # Commented out - needed for PythonAnywhere deployment
 frontend/build/
 *.local
 
