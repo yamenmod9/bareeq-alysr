@@ -9,7 +9,7 @@ from app.database import db
 from app.services.auth_service import AuthService
 from app.services.customer_service import CustomerService
 from app.services.merchant_service import MerchantService
-from app.utils.auth import TokenInfo, create_access_token, decode_token
+from app.utils.auth import TokenInfo, create_access_token, verify_token
 from app.config import Config
 
 # Create blueprint for API routes
@@ -24,7 +24,7 @@ def get_current_user_flask():
     
     token = auth_header.split(' ')[1]
     try:
-        payload = decode_token(token)
+        payload = verify_token(token)
         from app.models import User
         return User.query.get(payload.get('sub'))
     except Exception:
