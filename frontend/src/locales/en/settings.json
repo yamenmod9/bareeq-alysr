@@ -1,0 +1,74 @@
+{
+  "sections": {
+    "profile": "Profile",
+    "credit": "Credit Limit",
+    "security": "Security",
+    "appearance": "Appearance",
+    "notifications": "Notifications",
+    "bank": "Bank Account",
+    "branches": "Branches"
+  },
+  "profile": {
+    "title": "Profile Information",
+    "subtitle": "Update your personal information",
+    "full_name": "Full Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "save_changes": "Save Changes",
+    "saving": "Saving...",
+    "success": "Profile updated successfully",
+    "edit": "Edit Profile",
+    "cancel": "Cancel"
+  },
+  "theme": {
+    "title": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "language": {
+    "title": "Language"
+  },
+  "security": {
+    "title": "Security Settings",
+    "password": "Password",
+    "password_desc": "Change your account password",
+    "change": "Change",
+    "change_password": "Change Password",
+    "current_password": "Current Password",
+    "new_password": "New Password",
+    "confirm_password": "Confirm New Password",
+    "password_changed": "Password changed successfully",
+    "passwords_not_match": "Passwords do not match",
+    "two_factor": "Two-Factor Authentication",
+    "two_factor_desc": "Add an extra layer of security to your account",
+    "two_factor_enabled": "2FA is currently enabled",
+    "two_factor_disabled": "2FA is currently disabled",
+    "enable": "Enable",
+    "disable": "Disable",
+    "enabling": "Enabling...",
+    "disabling": "Disabling...",
+    "scan_qr": "Scan this QR code with your authenticator app",
+    "secret_key": "Secret Key",
+    "backup_codes": "Backup Codes",
+    "backup_codes_desc": "Save these codes in a safe place. You can use them to access your account if you lose your authenticator.",
+    "2fa_enabled": "Two-factor authentication enabled",
+    "2fa_disabled": "Two-factor authentication disabled",
+    "api_keys": "API Keys",
+    "api_keys_desc": "Manage your API keys for integrations"
+  },
+  "notifications": {
+    "purchase_requests": "Purchase Requests",
+    "purchase_requests_desc": "Get notified about new purchase requests",
+    "payment_reminders": "Payment Reminders",
+    "payment_reminders_desc": "Receive reminders before due dates",
+    "promotions": "Promotions",
+    "promotions_desc": "Receive offers and promotions",
+    "new_transactions": "New Transactions",
+    "new_transactions_desc": "Get notified when new transactions are created",
+    "settlements": "Settlements",
+    "settlements_desc": "Get notified about settlement updates",
+    "customer_activity": "Customer Activity",
+    "customer_activity_desc": "Get notified about customer actions"
+  }
+}

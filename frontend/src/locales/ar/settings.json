@@ -1,0 +1,74 @@
+{
+  "sections": {
+    "profile": "الملف الشخصي",
+    "credit": "الحد الائتماني",
+    "security": "الأمان",
+    "appearance": "المظهر",
+    "notifications": "الإشعارات",
+    "bank": "الحساب البنكي",
+    "branches": "الفروع"
+  },
+  "profile": {
+    "title": "معلومات الملف الشخصي",
+    "subtitle": "تحديث معلوماتك الشخصية",
+    "full_name": "الاسم الكامل",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "save_changes": "حفظ التغييرات",
+    "saving": "جاري الحفظ...",
+    "success": "تم تحديث الملف الشخصي بنجاح",
+    "edit": "تعديل الملف",
+    "cancel": "إلغاء"
+  },
+  "theme": {
+    "title": "المظهر",
+    "light": "فاتح",
+    "dark": "داكن",
+    "system": "تلقائي"
+  },
+  "language": {
+    "title": "اللغة"
+  },
+  "security": {
+    "title": "إعدادات الأمان",
+    "password": "كلمة المرور",
+    "password_desc": "تغيير كلمة مرور حسابك",
+    "change": "تغيير",
+    "change_password": "تغيير كلمة المرور",
+    "current_password": "كلمة المرور الحالية",
+    "new_password": "كلمة المرور الجديدة",
+    "confirm_password": "تأكيد كلمة المرور الجديدة",
+    "password_changed": "تم تغيير كلمة المرور بنجاح",
+    "passwords_not_match": "كلمات المرور غير متطابقة",
+    "two_factor": "المصادقة الثنائية",
+    "two_factor_desc": "إضافة طبقة أمان إضافية لحسابك",
+    "two_factor_enabled": "المصادقة الثنائية مفعلة حالياً",
+    "two_factor_disabled": "المصادقة الثنائية معطلة حالياً",
+    "enable": "تفعيل",
+    "disable": "تعطيل",
+    "enabling": "جاري التفعيل...",
+    "disabling": "جاري التعطيل...",
+    "scan_qr": "امسح رمز QR باستخدام تطبيق المصادقة",
+    "secret_key": "المفتاح السري",
+    "backup_codes": "رموز الاحتياط",
+    "backup_codes_desc": "احفظ هذه الرموز في مكان آمن. يمكنك استخدامها للوصول إلى حسابك إذا فقدت تطبيق المصادقة.",
+    "2fa_enabled": "تم تفعيل المصادقة الثنائية",
+    "2fa_disabled": "تم تعطيل المصادقة الثنائية",
+    "api_keys": "مفاتيح API",
+    "api_keys_desc": "إدارة مفاتيح API للتكاملات"
+  },
+  "notifications": {
+    "purchase_requests": "طلبات الشراء",
+    "purchase_requests_desc": "إشعارات عند وصول طلبات شراء جديدة",
+    "payment_reminders": "تذكيرات الدفع",
+    "payment_reminders_desc": "تلقي تذكيرات قبل مواعيد الاستحقاق",
+    "promotions": "العروض الترويجية",
+    "promotions_desc": "تلقي العروض والترويجات",
+    "new_transactions": "المعاملات الجديدة",
+    "new_transactions_desc": "إشعارات عند إنشاء معاملات جديدة",
+    "settlements": "التسويات",
+    "settlements_desc": "إشعارات حول تحديثات التسويات",
+    "customer_activity": "نشاط العملاء",
+    "customer_activity_desc": "إشعارات حول إجراءات العملاء"
+  }
+}
