@@ -19,11 +19,14 @@ instance_dir = os.path.join(project_home, 'instance')
 if not os.path.exists(instance_dir):
     os.makedirs(instance_dir)
 
-from app.flask_app import flask_app, init_database
+from app.flask_app import create_flask_app
+from app.database import create_all_tables
 
-# Initialize database
-init_database(flask_app)
+# Create Flask application
+application = create_flask_app()
 
-# Use Flask app (with API routes registered via flask_routes.py)
-application = flask_app
+# Initialize database tables
+with application.app_context():
+    create_all_tables()
+
 print("✅ Flask application ready with API routes")
