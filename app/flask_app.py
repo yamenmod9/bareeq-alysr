@@ -39,12 +39,12 @@ def create_flask_app() -> Flask:
             Settlement, RepaymentPlan, RepaymentSchedule
         )
     
-    # Register Flask routes (frontend serving) FIRST
-    register_flask_routes(app)
-    
-    # Register API blueprint with /api prefix
+    # Register API blueprint
     from app.flask_routes import api
-    app.register_blueprint(api, url_prefix='/api')
+    app.register_blueprint(api)
+    
+    # Register Flask routes (frontend serving)
+    register_flask_routes(app)
     
     return app
 
@@ -66,11 +66,16 @@ def register_flask_routes(app: Flask):
     @app.route('/<path:path>')
     def serve_frontend(path):
         """Serve the React frontend or static files"""
-        # Serve static file if it exists (CSS, JS, images, etc.)
+        # API routes are handled by the blueprint, don't catch them here
+        if path.startswith(('auth/', 'customers/', 'merchants/', 'admin/')):
+            # Let the API blueprint handle these
+            return jsonify({"error": "Not Found"}), 404
+        
+        # Serve static file if it exists
         if path and os.path.exists(os.path.join(app.static_folder, path)):
             return send_from_directory(app.static_folder, path)
         
-        # Otherwise serve index.html for SPA routing (all frontend routes)
+        # Otherwise serve index.html for SPA routing
         return send_from_directory(app.static_folder, 'index.html')
     
     @app.route('/admin/stats')
