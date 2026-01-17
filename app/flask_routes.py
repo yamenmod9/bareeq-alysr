@@ -256,6 +256,54 @@ def customer_transactions(user):
     })
 
 
+@api.route('/customers/transactions', methods=['GET'])
+@require_role('customer')
+def get_customer_transactions_filtered(user):
+    """Get customer transactions with filters (for Payment page)"""
+    from app.models import Customer, Transaction, Merchant, User
+    
+    customer = Customer.query.filter_by(user_id=user.id).first()
+    if not customer:
+        return jsonify({"success": False, "message": "Customer not found"}), 404
+    
+    status = request.args.get('status')
+    
+    query = Transaction.query.filter_by(customer_id=customer.id)
+    if status:
+        query = query.filter_by(status=status)
+    
+    transactions = query.order_by(Transaction.created_at.desc()).all()
+    
+    result = []
+    for t in transactions:
+        merchant = Merchant.query.get(t.merchant_id)
+        merchant_user = User.query.get(merchant.user_id) if merchant else None
+        
+        result.append({
+            "transaction_id": t.id,
+            "transaction_number": t.transaction_number,
+            "reference_number": t.transaction_number,
+            "total_amount": float(t.amount),
+            "paid_amount": float(t.amount - t.remaining_amount),
+            "remaining_balance": float(t.remaining_amount),
+            "status": t.status,
+            "due_date": t.created_at.isoformat() if t.created_at else None,
+            "created_at": t.created_at.isoformat() if t.created_at else None,
+            "merchant": {
+                "shop_name": merchant.shop_name if merchant else "Unknown",
+                "user": {
+                    "full_name": merchant_user.full_name if merchant_user else None
+                }
+            } if merchant else None
+        })
+    
+    return jsonify({
+        "success": True,
+        "data": result,
+        "message": "Transactions retrieved"
+    })
+
+
 # === Merchant Routes ===
 
 @api.route('/merchants/me/dashboard', methods=['GET'])
@@ -575,6 +623,81 @@ def reject_purchase_request(user, request_id):
 
 
 # === Payment Routes ===
+
+@api.route('/customers/make-payment', methods=['POST'])
+@require_role('customer')
+def make_payment_new(user):
+    """Make a payment on a transaction (new route format)"""
+    from app.models import Customer, Transaction, Payment
+    from datetime import datetime
+    import uuid
+    
+    customer = Customer.query.filter_by(user_id=user.id).first()
+    if not customer:
+        return jsonify({"success": False, "message": "Customer not found"}), 404
+    
+    data = request.get_json()
+    transaction_id = data.get('transaction_id')
+    amount = float(data.get('amount', 0))
+    payment_method = data.get('payment_method', 'card')
+    
+    transaction = Transaction.query.get(transaction_id)
+    if not transaction or transaction.customer_id != customer.id:
+        return jsonify({"success": False, "message": "Transaction not found"}), 404
+    
+    if transaction.status == 'completed':
+        return jsonify({"success": False, "message": "Transaction already completed"}), 400
+    
+    if amount <= 0:
+        return jsonify({"success": False, "message": "Invalid payment amount"}), 400
+    
+    if amount > transaction.remaining_amount:
+        amount = float(transaction.remaining_amount)
+    
+    # Create payment
+    payment = Payment(
+        payment_number=f"PAY-{uuid.uuid4().hex[:8].upper()}",
+        transaction_id=transaction.id,
+        amount=amount,
+        payment_method=payment_method,
+        status='completed',
+        paid_at=datetime.utcnow()
+    )
+    db.session.add(payment)
+    
+    # Update transaction
+    transaction.remaining_amount -= amount
+    if transaction.remaining_amount <= 0:
+        transaction.remaining_amount = 0
+        transaction.status = 'completed'
+    
+    # Restore customer balance
+    customer.available_balance += amount
+    
+    db.session.commit()
+    
+    return jsonify({
+        "success": True,
+        "data": {
+            "payment": {
+                "id": payment.id,
+                "payment_number": payment.payment_number,
+                "amount": float(payment.amount),
+                "payment_method": payment.payment_method,
+                "status": payment.status,
+                "paid_at": payment.paid_at.isoformat() if payment.paid_at else None
+            },
+            "transaction": {
+                "id": transaction.id,
+                "transaction_number": transaction.transaction_number,
+                "remaining_amount": float(transaction.remaining_amount),
+                "status": transaction.status
+            },
+            "new_balance": float(customer.available_balance)
+        },
+        "message": "Payment successful"
+    })
+
 
 @api.route('/customers/transactions/<int:transaction_id>/pay', methods=['POST'])
 @require_role('customer')
