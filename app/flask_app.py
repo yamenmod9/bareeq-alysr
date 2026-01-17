@@ -77,9 +77,6 @@ def register_flask_routes(app: Flask):
         
         # Otherwise serve index.html for SPA routing
         return send_from_directory(app.static_folder, 'index.html')
-            "framework": "flask",
-            "database": "connected"
-        })
     
     @app.route('/admin/stats')
     def admin_stats():
