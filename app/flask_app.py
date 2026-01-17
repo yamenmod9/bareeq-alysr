@@ -39,12 +39,12 @@ def create_flask_app() -> Flask:
             Settlement, RepaymentPlan, RepaymentSchedule
         )
     
-    # Register API blueprint
-    from app.flask_routes import api
-    app.register_blueprint(api)
-    
-    # Register Flask routes (frontend serving)
+    # Register Flask routes (frontend serving) FIRST
     register_flask_routes(app)
+    
+    # Register API blueprint with /api prefix
+    from app.flask_routes import api
+    app.register_blueprint(api, url_prefix='/api')
     
     return app
 
