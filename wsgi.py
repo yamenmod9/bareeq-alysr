@@ -20,13 +20,13 @@ if not os.path.exists(instance_dir):
     os.makedirs(instance_dir)
 
 from app.flask_app import create_flask_app
-from app.database import create_all_tables
+from app.database import db
 
 # Create Flask application
 application = create_flask_app()
 
 # Initialize database tables
 with application.app_context():
-    create_all_tables()
+    db.create_all()
 
 print("✅ Flask application ready with API routes")
