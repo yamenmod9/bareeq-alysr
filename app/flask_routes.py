@@ -248,6 +248,34 @@ def customer_transactions(user):
     
     customer = Customer.query.filter_by(user_id=user.id).first()
     if not customer:
+        return jsonify({
+            "success": False,
+            "error": "NOT_FOUND",
+            "message": "Customer profile not found"
+        }), 404
+    
+    # Get transactions with pagination
+    page = int(request.args.get('page', 1))
+    page_size = int(request.args.get('page_size', 10))
+    
+    transactions = Transaction.query.filter_by(customer_id=customer.id)\
+        .order_by(Transaction.created_at.desc())\
+        .offset((page-1)*page_size).limit(page_size).all()
+    
+    return jsonify({
+        "success": True,
+        "data": [
+            {
+                "id": txn.id,
+                "amount": float(txn.amount),
+                "status": txn.status,
+                "merchant_name": txn.merchant.shop_name if txn.merchant else "Unknown",
+                "created_at": txn.created_at.isoformat() if txn.created_at else None
+            }
+            for txn in transactions
+        ],
+        "message": "Transactions retrieved"
+    })
 
 
 # Additional endpoints expected by frontend
@@ -361,40 +389,6 @@ def customer_schedules(user):
             for sched in schedules
         ],
         "message": "Repayment schedules retrieved"
-    })
-
-
-@api.route('/customers/me/transactions', methods=['GET'])
-@require_role('customer')
-def customer_transactions(user):
-    """Get customer transactions"""
-    from app.models import Customer, Transaction, Merchant
-    
-    customer = Customer.query.filter_by(user_id=user.id).first()
-    if not customer:
-        return jsonify({"success": False, "message": "Customer not found"}), 404
-    
-    transactions = Transaction.query.filter_by(customer_id=customer.id).order_by(
-        Transaction.created_at.desc()
-    ).limit(50).all()
-    
-    result = []
-    for t in transactions:
-        merchant = Merchant.query.get(t.merchant_id)
-        result.append({
-            "id": t.id,
-            "transaction_number": t.transaction_number,
-            "amount": float(t.amount),
-            "remaining_amount": float(t.remaining_amount),
-            "status": t.status,
-            "merchant_name": merchant.shop_name if merchant else "Unknown",
-            "created_at": t.created_at.isoformat() if t.created_at else None
-        })
-    
-    return jsonify({
-        "success": True,
-        "data": result,
-        "message": "Transactions retrieved"
     })
 
 
