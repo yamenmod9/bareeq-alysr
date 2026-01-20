@@ -132,7 +132,7 @@ def register_flask_routes(app: Flask):
             customer_user.set_password("password123")
             db.session.add(customer_user)
             db.session.flush()
-            
+
             customer = Customer(
                 user_id=customer_user.id,
                 credit_limit=Config.DEFAULT_CREDIT_LIMIT,
@@ -140,7 +140,7 @@ def register_flask_routes(app: Flask):
                 status="active"
             )
             db.session.add(customer)
-            
+
             # Create test merchant
             merchant_user = User(
                 email="merchant@test.com",
@@ -154,7 +154,7 @@ def register_flask_routes(app: Flask):
             merchant_user.set_password("password123")
             db.session.add(merchant_user)
             db.session.flush()
-            
+
             merchant = Merchant(
                 user_id=merchant_user.id,
                 shop_name="Al-Yusr Electronics",
@@ -165,7 +165,21 @@ def register_flask_routes(app: Flask):
             )
             db.session.add(merchant)
             db.session.flush()
-            
+
+            # Create test admin
+            admin_user = User(
+                email="admin@test.com",
+                full_name="Admin User",
+                phone="+966503333333",
+                national_id="1122334455",
+                role="admin",
+                is_active=True,
+                is_verified=True
+            )
+            admin_user.set_password("password123")
+            db.session.add(admin_user)
+            db.session.flush()
+
             # Create test branch
             branch = Branch(
                 merchant_id=merchant.id,
@@ -175,9 +189,9 @@ def register_flask_routes(app: Flask):
                 is_active=True
             )
             db.session.add(branch)
-            
+
             db.session.commit()
-            
+
             return jsonify({
                 "success": True,
                 "data": {
@@ -192,6 +206,11 @@ def register_flask_routes(app: Flask):
                         "password": "password123",
                         "user_id": merchant_user.id,
                         "merchant_id": merchant.id
+                    },
+                    "admin": {
+                        "email": "admin@test.com",
+                        "password": "password123",
+                        "user_id": admin_user.id
                     }
                 },
                 "message": "Test data created successfully"
