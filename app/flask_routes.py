@@ -248,6 +248,130 @@ def customer_transactions(user):
     
     customer = Customer.query.filter_by(user_id=user.id).first()
     if not customer:
+
+
+# Additional endpoints expected by frontend
+@api.route('/customers/limits', methods=['GET'])
+@require_role('customer')
+def customer_limits(user):
+    """Get customer credit limits"""
+    from app.models import Customer
+    
+    customer = Customer.query.filter_by(user_id=user.id).first()
+    if not customer:
+        return jsonify({
+            "success": False,
+            "error": "NOT_FOUND",
+            "message": "Customer profile not found"
+        }), 404
+    
+    return jsonify({
+        "success": True,
+        "data": {
+            "credit_limit": float(customer.credit_limit),
+            "available_balance": float(customer.available_balance),
+            "used_credit": float(customer.credit_limit - customer.available_balance),
+            "outstanding_balance": float(customer.outstanding_balance),
+            "status": customer.status
+        },
+        "message": "Customer limits retrieved"
+    })
+
+
+@api.route('/customers/requests', methods=['GET'])
+@require_role('customer')
+def customer_requests(user):
+    """Get customer purchase requests"""
+    from app.models import Customer, PurchaseRequest, Merchant
+    
+    customer = Customer.query.filter_by(user_id=user.id).first()
+    if not customer:
+        return jsonify({
+            "success": False,
+            "error": "NOT_FOUND", 
+            "message": "Customer profile not found"
+        }), 404
+    
+    # Get query parameters
+    status = request.args.get('status', 'all')
+    page = int(request.args.get('page', 1))
+    page_size = int(request.args.get('page_size', 10))
+    
+    # Build query
+    query = PurchaseRequest.query.filter_by(customer_id=customer.id)
+    if status != 'all':
+        query = query.filter_by(status=status)
+    
+    # Paginate
+    requests = query.order_by(PurchaseRequest.created_at.desc()).offset((page-1)*page_size).limit(page_size).all()
+    
+    return jsonify({
+        "success": True,
+        "data": [
+            {
+                "id": req.id,
+                "amount": float(req.amount),
+                "status": req.status,
+                "merchant_name": req.merchant.shop_name if req.merchant else "Unknown",
+                "created_at": req.created_at.isoformat() if req.created_at else None
+            }
+            for req in requests
+        ],
+        "message": "Purchase requests retrieved"
+    })
+
+
+@api.route('/customers/schedules', methods=['GET'])
+@require_role('customer')
+def customer_schedules(user):
+    """Get customer repayment schedules"""
+    from app.models import Customer, RepaymentSchedule, Transaction
+    
+    customer = Customer.query.filter_by(user_id=user.id).first()
+    if not customer:
+        return jsonify({
+            "success": False,
+            "error": "NOT_FOUND",
+            "message": "Customer profile not found"
+        }), 404
+    
+    # Get query parameters
+    status = request.args.get('status', 'all')
+    page = int(request.args.get('page', 1))
+    page_size = int(request.args.get('page_size', 10))
+    
+    # Build query - get schedules for customer's transactions
+    query = RepaymentSchedule.query.join(Transaction).filter(Transaction.customer_id == customer.id)
+    if status != 'all':
+        query = query.filter(RepaymentSchedule.status == status)
+    
+    # Paginate
+    schedules = query.order_by(RepaymentSchedule.due_date).offset((page-1)*page_size).limit(page_size).all()
+    
+    return jsonify({
+        "success": True,
+        "data": [
+            {
+                "id": sched.id,
+                "amount": float(sched.amount),
+                "due_date": sched.due_date.isoformat() if sched.due_date else None,
+                "status": sched.status,
+                "transaction_id": sched.transaction_id
+            }
+            for sched in schedules
+        ],
+        "message": "Repayment schedules retrieved"
+    })
+
+
+@api.route('/customers/me/transactions', methods=['GET'])
+@require_role('customer')
+def customer_transactions(user):
+    """Get customer transactions"""
+    from app.models import Customer, Transaction, Merchant
+    
+    customer = Customer.query.filter_by(user_id=user.id).first()
+    if not customer:
         return jsonify({"success": False, "message": "Customer not found"}), 404
     
     transactions = Transaction.query.filter_by(customer_id=customer.id).order_by(
