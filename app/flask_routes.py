@@ -452,17 +452,6 @@ def customer_schedules(user):
     })
 
 
-@api.route('/merchants/settlements', methods=['GET'])
-@require_role('merchant')
-def merchant_settlements(user):
-    """Get merchant settlements"""
-    return jsonify({
-        "success": True,
-        "data": [],
-        "message": "Settlements retrieved"
-    })
-
-
 @api.route('/merchants/stats', methods=['GET'])
 @require_role('merchant')
 def merchant_stats(user):
@@ -476,17 +465,6 @@ def merchant_stats(user):
             "completed_settlements": 0.0
         },
         "message": "Merchant stats retrieved"
-    })
-
-
-@api.route('/merchants/transactions', methods=['GET'])
-@require_role('merchant')
-def merchant_transactions(user):
-    """Get merchant transactions"""
-    return jsonify({
-        "success": True,
-        "data": [],
-        "message": "Transactions retrieved"
     })
 
 
