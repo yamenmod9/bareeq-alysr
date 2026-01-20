@@ -1060,6 +1060,80 @@ def create_purchase_request(user):
     }), 201
 
 
+@api.route('/merchants/send-purchase-request', methods=['POST'])
+@require_role('merchant')
+def send_purchase_request(user):
+    """Send purchase request (alternative endpoint for frontend)"""
+    from app.models import Merchant, Customer, User, PurchaseRequest
+    from datetime import datetime, timedelta
+    import uuid
+    
+    data = request.get_json()
+    merchant = Merchant.query.filter_by(user_id=user.id).first()
+    
+    if not merchant:
+        return jsonify({"success": False, "message": "Merchant not found"}), 404
+    
+    # Get customer ID from the request (frontend should send customer_id after lookup)
+    customer_id = data.get('customer_id')
+    if not customer_id:
+        # Fallback: try to find customer by identifier
+        customer_identifier = data.get('customer_identifier') or data.get('customer_phone') or data.get('customer_email')
+        if customer_identifier:
+            customer_user = User.query.filter(
+                (User.phone == customer_identifier) | (User.email == customer_identifier)
+            ).first()
+            if customer_user:
+                customer = Customer.query.filter_by(user_id=customer_user.id).first()
+                customer_id = customer.id if customer else None
+        
+        if not customer_id:
+            return jsonify({"success": False, "message": "Customer not found"}), 404
+    
+    customer = Customer.query.get(customer_id)
+    if not customer:
+        return jsonify({"success": False, "message": "Customer not found"}), 404
+    
+    customer_user = User.query.get(customer.user_id)
+    amount = float(data.get('amount', 0))
+    
+    # Check customer balance
+    if amount > customer.available_balance:
+        return jsonify({
+            "success": False, 
+            "message": f"Insufficient balance. Available: {customer.available_balance} SAR"
+        }), 400
+    
+    # Create purchase request
+    pr = PurchaseRequest(
+        request_number=f"PR-{uuid.uuid4().hex[:8].upper()}",
+        merchant_id=merchant.id,
+        customer_id=customer.id,
+        amount=amount,
+        description=data.get('description', ''),
+        status='pending',
+        expires_at=datetime.utcnow() + timedelta(hours=24)  # 24 hours expiry
+    )
+    
+    db.session.add(pr)
+    db.session.commit()
+    
+    return jsonify({
+        "success": True,
+        "data": {
+            "id": pr.id,
+            "request_number": pr.request_number,
+            "amount": float(pr.amount),
+            "status": pr.status,
+            "customer_name": customer_user.full_name,
+            "customer_phone": customer_user.phone,
+            "expires_at": pr.expires_at.isoformat(),
+            "created_at": pr.created_at.isoformat() if pr.created_at else None
+        },
+        "message": "Purchase request sent successfully"
+    }), 201
+
+
 @api.route('/customers/purchase-requests/pending', methods=['GET'])
 @require_role('customer')
 def get_pending_requests(user):
