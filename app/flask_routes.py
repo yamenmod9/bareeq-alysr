@@ -892,14 +892,68 @@ def merchant_profile(user):
         "data": {
             "id": merchant.id,
             "shop_name": merchant.shop_name,
-            "shop_address": merchant.shop_address,
-            "contact_phone": merchant.contact_phone,
-            "business_type": merchant.business_type,
-            "commission_rate": float(merchant.commission_rate),
+            "shop_name_ar": merchant.shop_name_ar,
+            "address": merchant.address,
+            "city": merchant.city,
+            "business_phone": merchant.business_phone,
+            "business_email": merchant.business_email,
+            "commercial_registration": merchant.commercial_registration,
+            "vat_number": merchant.vat_number,
             "status": merchant.status,
+            "is_verified": merchant.is_verified,
+            "total_transactions": merchant.total_transactions,
+            "total_volume": float(merchant.total_volume or 0),
+            "balance": float(merchant.balance or 0),
             "created_at": merchant.created_at.isoformat() if merchant.created_at else None
         },
         "message": "Merchant profile retrieved"
+    })
+
+
+@api.route('/merchants/lookup-customer/<customer_identifier>', methods=['GET'])
+@require_role('merchant')
+def lookup_customer(user, customer_identifier):
+    """Look up customer by phone, email, or customer code"""
+    from app.models import Customer, User
+    
+    # Try to find customer by different identifiers
+    customer = None
+    customer_user = None
+    
+    # First try by customer code (if it looks like one)
+    if len(customer_identifier) == 8 and customer_identifier.isalnum():
+        customer = Customer.query.filter_by(customer_code=customer_identifier.upper()).first()
+        if customer:
+            customer_user = User.query.get(customer.user_id)
+    
+    # If not found, try by phone or email
+    if not customer:
+        customer_user = User.query.filter(
+            (User.phone == customer_identifier) | (User.email == customer_identifier)
+        ).first()
+        if customer_user:
+            customer = Customer.query.filter_by(user_id=customer_user.id).first()
+    
+    if not customer or not customer_user:
+        return jsonify({
+            "success": False,
+            "message": "Customer not found"
+        }), 404
+    
+    return jsonify({
+        "success": True,
+        "data": {
+            "id": customer.id,
+            "customer_code": customer.customer_code,
+            "full_name": customer_user.full_name,
+            "phone": customer_user.phone,
+            "email": customer_user.email,
+            "available_balance": float(customer.available_balance or 0),
+            "credit_limit": float(customer.credit_limit or 0),
+            "outstanding_balance": float(customer.outstanding_balance or 0),
+            "status": customer.status
+        },
+        "message": "Customer found"
     })
 
 
