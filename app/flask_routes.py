@@ -105,10 +105,19 @@ def login():
             "message": "Login successful"
         })
     except Exception as e:
+        error_message = str(e)
+        if "Invalid email or password" in error_message:
+            user_message = "The email or password is incorrect."
+        elif "Account is deactivated" in error_message:
+            user_message = "This account is deactivated."
+        elif "National ID does not match" in error_message:
+            user_message = "National ID does not match our records."
+        else:
+            user_message = error_message
         return jsonify({
             "success": False,
             "error": "AUTH_ERROR",
-            "message": str(e)
+            "message": user_message
         }), 401
 
 
@@ -145,10 +154,19 @@ def register():
             "message": "Registration successful"
         }), 201
     except Exception as e:
+        error_message = str(e)
+        if "Email already registered" in error_message:
+            user_message = "This email is already registered."
+        elif "National ID already registered" in error_message:
+            user_message = "This national ID is already registered."
+        elif "Missing required field" in error_message:
+            user_message = "Please fill in all required fields."
+        else:
+            user_message = error_message
         return jsonify({
             "success": False,
             "error": "REGISTRATION_ERROR",
-            "message": str(e)
+            "message": user_message
         }), 400
 
 

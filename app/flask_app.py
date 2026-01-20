@@ -176,7 +176,7 @@ def register_flask_routes(app: Flask):
                 is_active=True,
                 is_verified=True
             )
-            admin_user.set_password("password123")
+            admin_user.set_password("Admin@123")
             db.session.add(admin_user)
             db.session.flush()
 
