@@ -279,6 +279,62 @@ def customer_transactions(user):
 
 
 # Additional endpoints expected by frontend
+@api.route('/customers/me', methods=['GET'])
+@require_role('customer')
+def customer_profile(user):
+    """Get customer profile"""
+    from app.models import Customer
+    
+    customer = Customer.query.filter_by(user_id=user.id).first()
+    if not customer:
+        return jsonify({
+            "success": False,
+            "error": "NOT_FOUND",
+            "message": "Customer profile not found"
+        }), 404
+    
+    return jsonify({
+        "success": True,
+        "data": {
+            "id": customer.id,
+            "user_id": customer.user_id,
+            "customer_code": customer.customer_code,
+            "credit_limit": float(customer.credit_limit),
+            "available_balance": float(customer.available_balance),
+            "outstanding_balance": float(customer.outstanding_balance),
+            "status": customer.status,
+            "user": {
+                "full_name": user.full_name,
+                "email": user.email,
+                "phone": user.phone
+            }
+        },
+        "message": "Customer profile retrieved"
+    })
+
+
+@api.route('/customers/pending-requests', methods=['GET'])
+@require_role('customer')
+def customer_pending_requests(user):
+    """Get customer pending requests"""
+    return jsonify({
+        "success": True,
+        "data": [],
+        "message": "Pending requests retrieved"
+    })
+
+
+@api.route('/customers/limit-history', methods=['GET'])
+@require_role('customer')
+def customer_limit_history(user):
+    """Get customer limit history"""
+    return jsonify({
+        "success": True,
+        "data": [],
+        "message": "Limit history retrieved"
+    })
+
+
 @api.route('/customers/limits', methods=['GET'])
 @require_role('customer')
 def customer_limits(user):
@@ -393,6 +449,55 @@ def customer_schedules(user):
         "success": True,
         "data": data,
         "message": "Repayment schedules retrieved"
+    })
+
+
+@api.route('/merchants/settlements', methods=['GET'])
+@require_role('merchant')
+def merchant_settlements(user):
+    """Get merchant settlements"""
+    return jsonify({
+        "success": True,
+        "data": [],
+        "message": "Settlements retrieved"
+    })
+
+
+@api.route('/merchants/stats', methods=['GET'])
+@require_role('merchant')
+def merchant_stats(user):
+    """Get merchant statistics"""
+    return jsonify({
+        "success": True,
+        "data": {
+            "total_transactions": 0,
+            "total_revenue": 0.0,
+            "pending_settlements": 0.0,
+            "completed_settlements": 0.0
+        },
+        "message": "Merchant stats retrieved"
+    })
+
+
+@api.route('/merchants/transactions', methods=['GET'])
+@require_role('merchant')
+def merchant_transactions(user):
+    """Get merchant transactions"""
+    return jsonify({
+        "success": True,
+        "data": [],
+        "message": "Transactions retrieved"
+    })
+
+
+@api.route('/merchants/branches', methods=['GET'])
+@require_role('merchant')
+def merchant_branches(user):
+    """Get merchant branches"""
+    return jsonify({
+        "success": True,
+        "data": [],
+        "message": "Branches retrieved"
     })
 
 
