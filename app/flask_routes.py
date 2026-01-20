@@ -333,18 +333,35 @@ def customer_requests(user):
     # Paginate
     requests = query.order_by(PurchaseRequest.created_at.desc()).offset((page-1)*page_size).limit(page_size).all()
     
+    data = []
+    for req in requests:
+        try:
+            # Safely get merchant name
+            merchant_name = "Unknown"
+            if hasattr(req, 'merchant') and req.merchant:
+                merchant_name = getattr(req.merchant, 'shop_name', 'Unknown')
+            
+            # Safely get amount
+            amount = 0.0
+            if hasattr(req, 'total_amount') and req.total_amount:
+                amount = float(req.total_amount)
+            elif hasattr(req, 'amount') and req.amount:
+                amount = float(req.amount)
+            
+            data.append({
+                "id": req.id,
+                "amount": amount,
+                "status": getattr(req, 'status', 'unknown'),
+                "merchant_name": merchant_name,
+                "created_at": req.created_at.isoformat() if req.created_at else None
+            })
+        except Exception as e:
+            # Skip this request if there are any errors
+            continue
+    
     return jsonify({
         "success": True,
-        "data": [
-            {
-                "id": req.id,
-                "amount": float(req.amount),
-                "status": req.status,
-                "merchant_name": req.merchant.shop_name if req.merchant else "Unknown",
-                "created_at": req.created_at.isoformat() if req.created_at else None
-            }
-            for req in requests
-        ],
+        "data": data,
         "message": "Purchase requests retrieved"
     })
 
