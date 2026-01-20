@@ -452,6 +452,171 @@ def customer_schedules(user):
     })
 
 
+# Additional customer endpoints that frontend expects
+
+@api.route('/customers/my-transactions', methods=['GET'])
+@require_role('customer')
+def customer_my_transactions(user):
+    """Get customer transactions (alias for /customers/me/transactions)"""
+    from app.models import Customer, Transaction
+    
+    customer = Customer.query.filter_by(user_id=user.id).first()
+    if not customer:
+        return jsonify({"success": False, "message": "Customer not found"}), 404
+    
+    transactions = Transaction.query.filter_by(customer_id=customer.id).order_by(
+        Transaction.created_at.desc()
+    ).limit(50).all()
+    
+    result = []
+    for t in transactions:
+        result.append({
+            "id": t.id,
+            "merchant_name": "Sample Merchant",
+            "amount": float(t.total_amount),
+            "status": t.status,
+            "due_date": t.due_date.isoformat() if t.due_date else None,
+            "created_at": t.created_at.isoformat() if t.created_at else None
+        })
+    
+    return jsonify({
+        "success": True,
+        "data": result,
+        "message": "Transactions retrieved"
+    })
+
+
+@api.route('/customers/upcoming-payments', methods=['GET'])
+@require_role('customer')
+def customer_upcoming_payments(user):
+    """Get customer upcoming payments"""
+    from app.models import Customer, Payment
+    from datetime import datetime, timedelta
+    
+    customer = Customer.query.filter_by(user_id=user.id).first()
+    if not customer:
+        return jsonify({"success": False, "message": "Customer not found"}), 404
+    
+    # Get upcoming payments within next 30 days
+    future_date = datetime.utcnow() + timedelta(days=30)
+    payments = Payment.query.join(Payment.transaction).filter(
+        Payment.transaction.has(customer_id=customer.id),
+        Payment.due_date >= datetime.utcnow(),
+        Payment.due_date <= future_date,
+        Payment.status.in_(['pending', 'overdue'])
+    ).order_by(Payment.due_date.asc()).limit(20).all()
+    
+    result = []
+    for p in payments:
+        result.append({
+            "id": p.id,
+            "amount": float(p.amount),
+            "due_date": p.due_date.isoformat() if p.due_date else None,
+            "status": p.status,
+            "transaction_id": p.transaction_id
+        })
+    
+    return jsonify({
+        "success": True,
+        "data": result,
+        "message": "Upcoming payments retrieved"
+    })
+
+
+@api.route('/customers/repayment-plans', methods=['GET'])
+@require_role('customer')
+def customer_repayment_plans(user):
+    """Get customer repayment plans"""
+    from app.models import Customer, Transaction, Payment
+    
+    customer = Customer.query.filter_by(user_id=user.id).first()
+    if not customer:
+        return jsonify({"success": False, "message": "Customer not found"}), 404
+    
+    # Get active transactions with their payment schedules
+    transactions = Transaction.query.filter_by(
+        customer_id=customer.id,
+        status='active'
+    ).limit(20).all()
+    
+    result = []
+    for t in transactions:
+        payments = Payment.query.filter_by(transaction_id=t.id).order_by(Payment.due_date.asc()).all()
+        
+        payment_schedule = []
+        for p in payments:
+            payment_schedule.append({
+                "id": p.id,
+                "amount": float(p.amount),
+                "due_date": p.due_date.isoformat() if p.due_date else None,
+                "status": p.status
+            })
+        
+        result.append({
+            "transaction_id": t.id,
+            "total_amount": float(t.total_amount),
+            "remaining_balance": float(t.remaining_balance or t.total_amount),
+            "status": t.status,
+            "payment_schedule": payment_schedule,
+            "created_at": t.created_at.isoformat() if t.created_at else None
+        })
+    
+    return jsonify({
+        "success": True,
+        "data": result,
+        "message": "Repayment plans retrieved"
+    })
+
+
+@api.route('/customers/transactions', methods=['GET'])
+@require_role('customer')
+def customer_transactions_filtered(user):
+    """Get customer transactions with filtering"""
+    from app.models import Customer, Transaction
+    
+    customer = Customer.query.filter_by(user_id=user.id).first()
+    if not customer:
+        return jsonify({"success": False, "message": "Customer not found"}), 404
+    
+    # Get query parameters
+    status = request.args.get('status', 'all')
+    page = int(request.args.get('page', 1))
+    page_size = min(int(request.args.get('page_size', 10)), 100)
+    
+    # Build query
+    query = Transaction.query.filter_by(customer_id=customer.id)
+    
+    if status and status != 'all':
+        query = query.filter(Transaction.status == status)
+    
+    # Order and paginate
+    transactions = query.order_by(Transaction.created_at.desc()).offset(
+        (page - 1) * page_size
+    ).limit(page_size).all()
+    
+    result = []
+    for t in transactions:
+        result.append({
+            "id": t.id,
+            "merchant_name": "Sample Merchant",
+            "amount": float(t.total_amount),
+            "status": t.status,
+            "due_date": t.due_date.isoformat() if t.due_date else None,
+            "created_at": t.created_at.isoformat() if t.created_at else None
+        })
+    
+    return jsonify({
+        "success": True,
+        "data": result,
+        "message": "Transactions retrieved",
+        "pagination": {
+            "page": page,
+            "page_size": page_size,
+            "total": query.count()
+        }
+    })
+
+
 @api.route('/merchants/stats', methods=['GET'])
 @require_role('merchant')
 def merchant_stats(user):
