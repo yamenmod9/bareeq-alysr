@@ -61,6 +61,21 @@ def register_flask_routes(app: Flask):
             "database": "connected"
         })
     
+    @app.route('/debug/files')
+    def debug_files():
+        """Debug endpoint to check frontend files"""
+        import os
+        files = []
+        if os.path.exists(app.static_folder):
+            for root, dirs, filenames in os.walk(app.static_folder):
+                for filename in filenames:
+                    files.append(os.path.relpath(os.path.join(root, filename), app.static_folder))
+        return jsonify({
+            "static_folder": app.static_folder,
+            "exists": os.path.exists(app.static_folder),
+            "files": files[:20]  # Limit to first 20 files
+        })
+    
     # Catch-all route for frontend (must be last)
     @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
